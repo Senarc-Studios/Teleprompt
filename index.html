@@ -84,7 +84,7 @@
 
 			function sendMessage(message=null) {
 				if (username === null) {
-					print("You must login with the following command before you can talk: !login <your-senarc-token>");
+					return print("You must login with the following command before you can talk: !login <your-senarc-token>");
 				};
 				if (message === null) {
 					var message = document.getElementById("text-box").value;
