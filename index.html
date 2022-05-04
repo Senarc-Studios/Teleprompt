@@ -43,5 +43,113 @@
 		<div class='console' height='600'>
 			<input class='run' id="text-box" type='text' placeholder='Send a message.'/>
 		</div>
+		<script>
+			const BASE_URL = "https://canary.senarc.org";
+			let token = null
+			let username = null
+
+			function getInfo() {
+				let responseJson = null;
+				if (token === null) {
+					return null;
+				};
+				var request = new Request(BASE_URL + "/token/info", 
+					{
+						method: "GET",
+						headers: new Headers({
+							"Authorisation": token
+						})
+					}
+				);
+				fetch(request).then(
+					response => response.json()
+				).then(
+					responseJson => {
+						username = responseJson.username;
+						return username;
+					}
+				).catch(err => {
+					console.error(err);
+					return null;
+				});
+			};
+
+			function print(content) {
+				var tag = document.createElement("p");
+				var text = document.createTextNode(content);
+				tag.appendChild(text);
+				var element = document.getElementById("main");
+				element.appendChild(tag);
+			};
+
+			function sendMessage(message=null) {
+				if (username === null) {
+					print("You must login with the following command before you can talk: !login <your-senarc-token>");
+				};
+				if (message === null) {
+					var message = document.getElementById("text-box").value;
+				};
+				print(`${username}: ${message}`);
+				document.getElementById("text-box").value = "";
+			};
+
+			var input = document.getElementById("text-box");
+
+			function checkResponse(json, token_) {
+				if (json['valid'] === true) {
+					return true;
+				} else {
+					return false;
+				}
+				token = token_;
+			};
+
+			function validate() {
+				var token = input.value.substr(7);
+
+				if (input.value === "") {
+					return null;
+				} else if (input.value.startsWith("!login ")) {
+					var request = new Request(
+						BASE_URL + "/token/verify",
+						{
+							method: "POST",
+							body: {
+								"token": token
+							},
+							headers: new Headers({ 'Content-Type': 'application/json' })
+						}
+					);
+					fetch(request).then(
+						response => response.json()
+					).then(
+						json => checkResponse(json, token)
+					).catch(
+						error => console.error(error)
+					).finally(
+						() => {
+							if (token !== null) {
+								console.log(`Logged in with token: ${token}`);
+								print(`Logged in with token: "${token}"`);
+								getInfo();
+							} else {
+								console.log("Invalid token");
+								print("Invalid token");
+							}
+						}
+					);
+				} else if (input.value.startsWith("!") === false) {
+					sendMessage();
+				} else {
+					return print("Invalid command.");
+				};
+			};
+
+			input.addEventListener("keydown", function (e) {
+				if (e.key === "Enter") {
+					validate();
+				};
+			});
+		</script>
 	</body>
 </html>
