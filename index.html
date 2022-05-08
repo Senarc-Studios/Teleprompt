@@ -53,25 +53,22 @@
 				if (token === null) {
 					return null;
 				};
-				var request = new Request(BASE_URL + "/token/info", 
-					{
-						method: "GET",
-						headers: new Headers({
-							"Authorisation": token
-						})
-					}
-				);
-				fetch(request).then(
-					response => response.json()
-				).then(
-					responseJson => {
+				let xhr = new XMLHttpRequest();
+
+				xhr.open("GET", `${BASE_URL}/token/info`);
+				xhr.setRequestHeader("Authorisation", token);
+				xhr.send();
+
+				xhr.onloadend = function() {
+					responseJson = JSON.parse(xhr.responseText);
+					if (responseJson.success) {
 						username = responseJson.username;
-						return username;
+					} else {
+						token = null;
+						username = null;
+						print("Invalid or Corrupted Token.");
 					}
-				).catch(err => {
-					console.error(err);
-					return null;
-				});
+				}
 			};
 
 			function print(content) {
@@ -105,43 +102,29 @@
 			};
 
 			function validate() {
-				var token = input.value.substr(7);
+				var token_ = input.value.substr(7);
 
 				if (input.value === "") {
 					return null;
 				} else if (input.value.startsWith("!login ")) {
-					var request = new Request(
-						BASE_URL + "/token/verify",
-						{
-							method: "POST",
-							body: {
-								"token": token
-							},
-							headers: new Headers({ 'Content-Type': 'application/json' })
+					let xhr = new XMLHttpRequest();
+
+					xhr.open('POST', `${BASE_URL}/token/verify`);
+					xhr.setRequestHeader('Authorisation', token);
+					xhr.send();
+
+					xhr.onloadend = function() {
+						if (xhr.status == 200) {
+							token = token_;
+							getInfo();
+						} else {
+							print("Invalid Token.");
 						}
-					);
-					fetch(request).then(
-						response => response.json()
-					).then(
-						json => checkResponse(json, token)
-					).catch(
-						error => console.error(error)
-					).finally(
-						() => {
-							if (token !== null) {
-								console.log(`Logged in with token: ${token}`);
-								print(`Logged in with token: "${token}"`);
-								getInfo();
-							} else {
-								console.log("Invalid token");
-								print("Invalid token");
-							}
-						}
-					);
+					}
 				} else if (input.value.startsWith("!") === false) {
 					sendMessage();
 				} else {
-					return print("Invalid command.");
+					return print("Invalid Command.");
 				};
 			};
 
