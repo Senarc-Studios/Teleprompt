@@ -48,27 +48,29 @@
 			let token = null
 			let username = null
 
+			function getJSON(method_, endpoint, json_ = null) {
+				const response = await fetch(BASE_URL + endpoint, {
+					method: method_,
+					headers: {
+						Authorization: token
+					},
+					body: json_
+				});
+				return await response.json().data;
+			};
+
 			function getInfo() {
-				let responseJson = null;
 				if (token === null) {
 					return null;
 				};
-				let xhr = new XMLHttpRequest();
+				const tokenInfo = getJSON("GET", "/api/user/info");
 
-				xhr.open("GET", `${BASE_URL}/token/info`);
-				xhr.setRequestHeader("Authorisation", token);
-				xhr.send();
-
-				xhr.onloadend = function() {
-					responseJson = JSON.parse(xhr.responseText);
-					if (responseJson.success) {
-						username = responseJson.username;
-					} else {
-						token = null;
-						username = null;
-						print("Invalid or Corrupted Token.");
-					}
-				}
+				if (tokenInfo != null) {
+					username = tokenInfo.username;
+					return tokenInfo;
+				} else {
+					return console.log("API is down or an error occured.");
+				};
 			};
 
 			function print(content) {
@@ -102,25 +104,20 @@
 			};
 
 			function validate() {
-				var token_ = input.value.substr(7);
-
+				
 				if (input.value === "") {
 					return null;
 				} else if (input.value.startsWith("!login ")) {
-					let xhr = new XMLHttpRequest();
+					token = input.value.substr(7);
+					const responseJson = getJSON('POST', "/token/verify");
 
-					xhr.open('POST', `${BASE_URL}/token/verify`);
-					xhr.setRequestHeader('Authorisation', token);
-					xhr.send();
-
-					xhr.onloadend = function() {
-						if (xhr.status == 200) {
-							token = token_;
-							getInfo();
-						} else {
-							print("Invalid Token.");
-						}
-					}
+					if (responseJson.valid == true) {
+						print("You have been logged in.");
+					} else {
+						token = true;
+						print("Invalid token.");
+					};
+					
 				} else if (input.value.startsWith("!") === false) {
 					sendMessage();
 				} else {
