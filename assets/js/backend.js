@@ -1,15 +1,20 @@
+console.log("Loaded Backend JavaScript.")
+
 const BASE_URL = "https://canary.senarc.org";
 let token = null
 let username = null
 
-function getJSON(method_, endpoint, json_ = null) {
-	const response = await fetch(BASE_URL + endpoint, {
-		method: method_,
-		headers: {
-			Authorization: token
-		},
-		body: json_
-	});
+async function getJSON(method_, endpoint, json_ = null) {
+	const response = await fetch(
+        BASE_URL + endpoint,
+        {
+            method: method_,
+            headers: {
+                Authorization: token
+            },
+            body: json_
+        }
+    );
 	return await response.json().data;
 };
 
