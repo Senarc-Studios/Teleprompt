@@ -1,0 +1,32 @@
+body {
+	color: #FFFFFF;
+	background-color: #1E1E1E;
+}
+h1 {
+	font-size: 150%;
+	font-weight: bold;
+	text-align: center;
+}
+p {
+	padding-left: 3%;
+}
+.console {
+	position: fixed;
+	right: 0px;
+	width: 100%;
+	overflow-y: auto;
+}
+
+.run {
+	background-color: #181A1C;
+	border-top-color: #FFFFFF;
+	border-top-style: solid;
+	border-top-width: 1px;
+	border-bottom: 1px solid #181A1C;
+	border-left: 1px solid #181A1C;
+	border-right: 1px solid #181A1C;
+	position: fixed;
+	color: #FFFFFF;
+	bottom: 0px;
+	width: 100%;
+}
