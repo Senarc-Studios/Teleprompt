@@ -1,20 +1,23 @@
 console.log("Loaded Backend JavaScript.")
 
-const BASE_URL = "https://canary.senarc.org";
+const BASE_URL = "http://127.0.0.1:8050"; // Local IP for testing.
 let token = null
 let username = null
 
 async function getJSON(method_, endpoint, json_ = null) {
-	const response = await fetch(
-        BASE_URL + endpoint,
-        {
-            method: method_,
-            headers: {
-                Authorization: token
-            },
-            body: json_
-        }
+	var request = new XMLHttpRequest();
+    request.open(
+        method_,
+        BASE_URL + endpoint
     );
+    request.setRequestHeader(
+        "Authorization",
+        token
+    );
+    request.send(
+        JSON.stringify(json_)
+    );
+
 	return await response.json().data;
 };
 
@@ -29,12 +32,19 @@ function getInfo() {
 		return tokenInfo;
 	} else {
 		return console.log("API is down or an error occured.");
-	};
+	};8
 };
 
-function print(content) {
+function print(content, type) {
 	var tag = document.createElement("p");
-	var text = document.createTextNode(content);
+    if (type === "user") {
+        var text = document.createTextNode("<a id='a-colour'>> " + content + "</a>");
+        tag.setAttribute("id", "username")
+        // Incomplete
+    } else {
+        var text = document.createTextNode("<a id='b-colour'>> " + content + "</a>");
+        tag.setAttribute("id", "message")
+    }
 	tag.appendChild(text);
 	var element = document.getElementById("main");
 	element.appendChild(tag);
